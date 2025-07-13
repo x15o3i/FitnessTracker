@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-stack calorie tracking application built with React, TypeScript, Express, and PostgreSQL. The application allows users to track their daily caloric intake, exercise calories burned, and steps taken to calculate their net calorie balance.
+This is a full-stack calorie tracking application built with React, TypeScript, Express, and PostgreSQL. The application allows users to track their daily caloric intake, exercise calories burned, and steps taken to calculate their net calorie balance. The app features a clean, modern interface with responsive design and real-time calculations.
 
 ## User Preferences
 
