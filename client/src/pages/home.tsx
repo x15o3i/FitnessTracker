@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 
 const calorieFormSchema = z.object({
   caloriesIn: z.coerce.number().min(0, "Calories must be 0 or positive").default(0),
-  caloriesBurned: z.coerce.number().min(0, "Calories must be 0 or positive").default(0),
-  steps: z.coerce.number().min(0, "Steps must be 0 or positive").default(0),
+  caloriesBurned: z.coerce.number().min(0, "Calories must be 0 or positive").optional(),
+  steps: z.coerce.number().min(0, "Steps must be 0 or positive").optional(),
 });
 
 type CalorieFormData = z.infer<typeof calorieFormSchema>;
@@ -31,24 +31,27 @@ export default function Home() {
     resolver: zodResolver(calorieFormSchema),
     defaultValues: {
       caloriesIn: 0,
-      caloriesBurned: 0,
-      steps: 0,
+      caloriesBurned: undefined,
+      steps: undefined,
     },
   });
 
   const onSubmit = (data: CalorieFormData) => {
     // Calculate calories from steps (0.04 calories per step)
-    const stepsCalories = Math.round(data.steps * 0.04);
+    const stepsCalories = data.steps ? Math.round(data.steps * 0.04) : 0;
+    
+    // Calculate manual exercise calories (default to 0 if not provided)
+    const exerciseCalories = data.caloriesBurned || 0;
     
     // Calculate totals
     const totalIn = data.caloriesIn;
-    const totalOut = data.caloriesBurned + stepsCalories;
+    const totalOut = exerciseCalories + stepsCalories;
     const netCalories = totalIn - totalOut;
     
     const calculationResults: CalculationResults = {
       totalIn,
       totalOut,
-      exerciseCalories: data.caloriesBurned,
+      exerciseCalories,
       stepsCalories,
       netCalories,
     };
@@ -136,12 +139,13 @@ export default function Home() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-slate-700">
-                        Calories Burned (Exercise)
+                        Calories Burned (Exercise) 
+                        <span className="text-xs text-slate-500 ml-1">(optional)</span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="0"
+                          placeholder=""
                           min="0"
                           step="1"
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg"
@@ -161,12 +165,12 @@ export default function Home() {
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-slate-700">
                         Steps Taken
-                        <span className="text-xs text-slate-500 ml-1">(0.04 cal/step)</span>
+                        <span className="text-xs text-slate-500 ml-1">(optional, 0.04 cal/step)</span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="0"
+                          placeholder=""
                           min="0"
                           step="1"
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-lg"
@@ -215,9 +219,18 @@ export default function Home() {
                   </span>
                 </div>
                 <div className="mt-2 text-sm text-slate-500">
-                  <span>Exercise: {results.exerciseCalories.toLocaleString()}</span>
-                  <span className="mx-2">•</span>
-                  <span>Steps: {results.stepsCalories.toLocaleString()}</span>
+                  {results.exerciseCalories > 0 && (
+                    <>
+                      <span>Exercise: {results.exerciseCalories.toLocaleString()}</span>
+                      {results.stepsCalories > 0 && <span className="mx-2">•</span>}
+                    </>
+                  )}
+                  {results.stepsCalories > 0 && (
+                    <span>Steps: {results.stepsCalories.toLocaleString()}</span>
+                  )}
+                  {results.exerciseCalories === 0 && results.stepsCalories === 0 && (
+                    <span>No exercise or steps recorded</span>
+                  )}
                 </div>
               </CardContent>
             </Card>
