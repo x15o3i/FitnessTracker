@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 
 const calorieFormSchema = z.object({
-  caloriesIn: z.coerce.number().min(0, "Calories must be 0 or positive").default(0),
+  caloriesIn: z.coerce.number().min(0, "Calories must be 0 or positive"),
   caloriesBurned: z.coerce.number().min(0, "Calories must be 0 or positive").optional(),
   steps: z.coerce.number().min(0, "Steps must be 0 or positive").optional(),
 });
@@ -30,7 +30,7 @@ export default function Home() {
   const form = useForm<CalorieFormData>({
     resolver: zodResolver(calorieFormSchema),
     defaultValues: {
-      caloriesIn: 0,
+      caloriesIn: undefined,
       caloriesBurned: undefined,
       steps: undefined,
     },
